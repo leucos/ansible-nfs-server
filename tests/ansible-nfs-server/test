@@ -1,0 +1,25 @@
+#!/bin/bash
+# -*- bash -*-
+
+# This gives you access to the custom DSL
+. "${ROLESPEC_LIB}/main"
+. "${ROLESPEC_TEST}/../defaults.conf"
+
+# Everything past this point is the custom DSL which is optional
+
+# Install a specific version of Ansible, you can
+# omit the version to install devel (latest unstable)
+install_ansible ${test_ansible_version}
+
+echo "##### RUN TEST"
+
+# Check that the playbook runs
+assert_playbook_runs -e '{ "nfs_server_export_directories": [ { "path": "/tmp", "clients": [ "localhost(rw,no_root_squash)" ] } ] }'
+assert_playbook_idempotent -e '{ "nfs_server_export_directories": [ { "path": "/tmp", "clients": [ "localhost(rw,no_root_squash)" ] } ] }'
+
+assert_playbook_runs -e '{ "nfs_server_export_directories": [ { "path": "/var/tmp", "clients": [ "localhost(ro)", "foobar.dev(rw)" ] } ] }'
+assert_playbook_idempotent -e '{ "nfs_server_export_directories": [ { "path": "/var/tmp", "clients": [ "localhost(ro)", "foobar.dev(rw)" ] } ] }'
+
+assert_in_file "/etc/exports" "\/tmp localhost\(rw,no_root_squash\)"
+assert_in_file "/etc/exports" "\/var\/tmp localhost\(ro\) foobar.dev\(rw\)"
+

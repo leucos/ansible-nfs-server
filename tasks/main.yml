@@ -1,0 +1,7 @@
+- include: nfs-server.yml
+  tags: ["nfs,nfs-server"]
+
+- include: nfs-add-export.yml
+  when: nfs_server_export_directories is defined and nfs_server_export_directories != False
+  tags: ["nfs,nfs-server"]
+

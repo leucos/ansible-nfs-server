@@ -1,0 +1,6 @@
+.tags
+tests/ansible-nginx/playbooks/
+.rspec
+.vagrant
+*.log
+
